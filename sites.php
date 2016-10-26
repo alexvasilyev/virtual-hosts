@@ -52,21 +52,26 @@ sort($confList);
 echo "\033[1;33mList of virtual hosts:\033[0m" . PHP_EOL;
 
 foreach ($confList as $k => $v) {
-    $output = "";
+    $output = "\"\033[1;30m{$v}\"" . PHP_EOL;
     $confContents = file_get_contents($v);
 
+    $output .= "\t\033[1;37mServer name: \033[0m";
+    // Server name
     try {
-        $output = getServerName($confContents);
+        $output .= "" . getServerName($confContents);
     } catch (\Exception $e) {
-        $output .= "{$e->getMessage()}\033[0m(\033[1;30m{$v})";
+        $output .= "\t{$e->getMessage()}";
     }
-    echo $output . PHP_EOL;
 
+    $output .= PHP_EOL . "\t\033[1;37mServer root path: \033[0m";
     // Root pwd
-    preg_match_all('/root\s+(?<s_root>[^;]+)/i', $confContents, $matches);
+    try {
+        $output .= "\t" . getRootPwd($confContents);
+    } catch (\Exception $e) {
+        $output .= "\t{$e->getMessage()}";
+    }
 
-    $match = $matches['s_root'];
-
+    echo $output . PHP_EOL;
 }
 
 /**
@@ -81,10 +86,10 @@ function getServerName($config)
     preg_match_all('/server_name\s+(?<s_name>[^;]+)/i', $config, $matches);
 
     $match = $matches['s_name'];
-    $output = "";
+    $output = "- ";
     switch (count($match)) {
         case 0:
-            throw new \Exception("\033[0;31mEmpty server name");
+            throw new \Exception("\033[0;31mEmpty server name\033[0m");
         case 1:
             $output .= "\033[32m{$match[0]}\033[0m";
             break;
@@ -105,9 +110,29 @@ function getServerName($config)
                     $output .= "\033[0m)";
                 }
             }
-
             break;
     }
+
+    return $output;
+}
+
+/**
+ * @param $config
+ *
+ * @return string
+ *
+ * @throws Exception
+ */
+function getRootPwd($config) {
+    preg_match_all('/root\s+(?<s_root>[^;]+)/i', $config, $matches);
+
+    $match = $matches['s_root'];
+    if (0 == count($match)) {
+        throw new \Exception("\033[0;31mEmpty root directive\033[0m");
+    } elseif (1 < count($match)) {
+        throw new \Exception("\033[0;31mMore than one root directive\033[0m");
+    }
+    $output = "- \033[0;32m{$match[0]}\033[0m";
 
     return $output;
 }
