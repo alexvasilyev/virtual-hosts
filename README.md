@@ -1,5 +1,8 @@
 ## Virtual hosts utility
-Utility tool to for Nginx virtual hosts
+Lists all virtual hosts enabled in nginx
+
+### Prerequisites
+* [PHP](http://php.net/)
 
 ### Usage
 cp sites.php /usr/local/bin/sites
