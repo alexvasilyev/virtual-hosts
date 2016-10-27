@@ -66,9 +66,9 @@ foreach ($confList as $k => $v) {
     $output .= PHP_EOL . "\t\033[1;37mServer root path: \033[0m";
     // Root pwd
     try {
-        $output .= "\t" . getRootPwd($confContents);
+        $output .= getRootPwd($confContents);
     } catch (\Exception $e) {
-        $output .= "\t{$e->getMessage()}";
+        $output .= $e->getMessage();
     }
 
     echo $output . PHP_EOL;
